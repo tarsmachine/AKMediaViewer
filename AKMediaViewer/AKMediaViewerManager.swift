@@ -440,7 +440,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                     animations: { () -> Void in
                                         imageView.frame = untransformedFinalImageFrame
-                                    }, completion: { (finished: Bool) -> Void in
+                                    }, completion: { (_) -> Void in
                                         self.focusViewController!.focusDidEndWithZoomEnabled(self.zoomEnabled)
                                         self.isZooming = false
                                         self.delegate?.mediaViewerManagerDidAppear?(self)
@@ -531,7 +531,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                     animations: { () -> Void in
                                         self.updateBoundsDuringAnimationWithElasticRatio(0.0)
-                                    }, completion: { (finished: Bool) -> Void in
+                                    }, completion: { (_) -> Void in
                                         self.mediaView.isHidden = false
                                         self.focusViewController!.view .removeFromSuperview()
                                         self.focusViewController!.removeFromParentViewController()
@@ -608,7 +608,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                                 contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
                                                 contentView.transform = self.mediaView.transform
                                                 self.updateBoundsDuringAnimationWithElasticRatio(0)
-                                            }, completion: { (finished: Bool) -> Void in
+                                            }, completion: { (_) -> Void in
                                                 self.mediaView.isHidden = false
                                                 self.focusViewController!.view.removeFromSuperview()
                                                 self.focusViewController!.removeFromParentViewController()
