@@ -16,6 +16,9 @@ test-reports
 Pods
 Podfile.lock
 
+## Swift Package Manager
+.build/
+
 # Git
 *.orig
 
