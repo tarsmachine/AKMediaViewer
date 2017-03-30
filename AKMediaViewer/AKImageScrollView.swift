@@ -133,7 +133,7 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
 
         // If we're at the minimum zoom scale, preserve that by returning 0, which will be converted to the minimum
         // allowable scale when the scale is restored.
-        if scaleToRestoreAfterResize <= (self.minimumZoomScale + CGFloat(FLT_EPSILON)) {
+        if scaleToRestoreAfterResize <= (self.minimumZoomScale + CGFloat(Float.ulpOfOne)) {
             scaleToRestoreAfterResize = 0
         }
     }

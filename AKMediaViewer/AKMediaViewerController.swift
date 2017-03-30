@@ -21,12 +21,17 @@ public class PlayerView: UIView {
         return AVPlayerLayer.self
     }
 
-    func player() -> AVPlayer {
-        return (layer as! AVPlayerLayer).player!
+    func player() -> AVPlayer? {
+        guard let avPlayer = (layer as? AVPlayerLayer) else {
+            return nil
+        }
+        return avPlayer.player
     }
 
     func setPlayer(_ player: AVPlayer) {
-        (layer as! AVPlayerLayer).player = player
+        if let avPlayer = (layer as? AVPlayerLayer) {
+            avPlayer.player = player
+        }
     }
 }
 
@@ -37,7 +42,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     public var tapGesture = UITapGestureRecognizer()
     public var doubleTapGesture = UITapGestureRecognizer()
     public var controlMargin: CGFloat = 0.0
-    public var playerView: UIView?
+    public var playerView: PlayerView?
     public var imageScrollView = AKImageScrollView()
     public var controlView: UIView?
 
@@ -107,7 +112,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         super.viewDidAppear(animated)
     }
 
-    func removeObservers(player: AVPlayer?) -> Void {
+    func removeObservers(player: AVPlayer?) {
         if observersAdded {
             guard let item = player?.currentItem else {
                 return
@@ -180,23 +185,23 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             switch UIDevice.current.orientation {
             case UIDeviceOrientation.landscapeRight:
                 if parent!.interfaceOrientation == UIInterfaceOrientation.portrait {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(-M_PI_2))
+                    transform = CGAffineTransform(rotationAngle: CGFloat(-Double.pi / 2))
                 } else {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
+                    transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
                 }
 
             case UIDeviceOrientation.landscapeLeft:
                 if parent!.interfaceOrientation == UIInterfaceOrientation.portrait {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
+                    transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
                 } else {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(-M_PI_2))
+                    transform = CGAffineTransform(rotationAngle: CGFloat(-Double.pi / 2))
                 }
 
             case UIDeviceOrientation.portrait:
                 transform = CGAffineTransform.identity
 
             case UIDeviceOrientation.portraitUpsideDown:
-                transform = CGAffineTransform(rotationAngle: CGFloat(M_PI))
+                transform = CGAffineTransform(rotationAngle: CGFloat.pi)
 
             case UIDeviceOrientation.faceDown: return
             case UIDeviceOrientation.faceUp: return
@@ -238,7 +243,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             self.removeObservers(player: self.player)
 
             self.player = AVPlayer(url: url)
-            (self.playerView as! PlayerView).setPlayer(self.player!)
+            self.playerView?.setPlayer(self.player!)
             self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PresentationSize, options: .new, context: nil)
             self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PLayerHasEmptyBuffer, options: .new, context: nil)
             self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PLayerKeepUp, options: .new, context: nil)
@@ -376,7 +381,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         return frame
     }
 
-    func playPLayer() -> Void {
+    func playPLayer() {
         activityIndicator?.stopAnimating()
         player?.play()
     }

@@ -118,9 +118,9 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     }
 
     // Install focusing gesture on the specified array of views.
-    public func installOnViews(_ views: NSArray) {
+    public func installOnViews(_ views: [UIView]) {
         for view in views {
-            installOnView(view as! UIView)
+            installOnView(view)
         }
     }
 
