@@ -3,7 +3,7 @@
 //  AKMediaViewerExample
 //
 //  Created by Diogo Autilio on 3/18/16.
-//  Copyright © 2016 AnyKey Entertainment. All rights reserved.
+//  Copyright © 2017 AnyKey Entertainment. All rights reserved.
 //
 
 import UIKit
@@ -13,17 +13,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     var statusBarHidden: Bool = false
     var mediaNames: [String] = ["1f.jpg", "2f.jpg", "3f.mp4", "4f.jpg"]
-    var mediaFocusManager: AKMediaViewerManager?
+    var mediaFocusManager = AKMediaViewerManager()
 
     @IBOutlet weak var tableView: UITableView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        mediaFocusManager = AKMediaViewerManager.init()
-        mediaFocusManager!.delegate = self
-        mediaFocusManager!.elasticAnimation = true
-        mediaFocusManager!.focusOnPinch = true
+        mediaFocusManager.delegate = self
+        mediaFocusManager.elasticAnimation = true
+        mediaFocusManager.focusOnPinch = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -92,7 +91,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
         cell.thumbnailView.image = image
         cell.thumbnailView.tag = (indexPath as NSIndexPath).row + 1
-        mediaFocusManager!.installOnView(cell.thumbnailView)
+        mediaFocusManager.installOnView(cell.thumbnailView)
 
         return cell
     }

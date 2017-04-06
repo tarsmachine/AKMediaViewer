@@ -291,8 +291,8 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func installZoomView() {
-        let scrollView: AKImageScrollView = AKImageScrollView.init(frame: contentView.bounds)
-        scrollView.autoresizingMask = [UIViewAutoresizing.flexibleHeight, UIViewAutoresizing.flexibleWidth]
+        let scrollView: AKImageScrollView = AKImageScrollView(frame: contentView.bounds)
+        scrollView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         scrollView.delegate = self
         imageScrollView = scrollView
         contentView.insertSubview(scrollView, at: 0)
@@ -303,11 +303,12 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func uninstallZoomView() {
-
-        let frame: CGRect = contentView.convert(imageScrollView.zoomImageView!.frame, from: imageScrollView)
-        imageScrollView.isHidden = true
-        mainImageView.isHidden = false
-        mainImageView.frame = frame
+        if let zoomImageViewFrame = imageScrollView.zoomImageView?.frame {
+            let frame: CGRect = contentView.convert(zoomImageViewFrame, from: imageScrollView)
+            imageScrollView.isHidden = true
+            mainImageView.isHidden = false
+            mainImageView.frame = frame
+        }
     }
 
     func isAccessoryViewPinned() -> Bool {
