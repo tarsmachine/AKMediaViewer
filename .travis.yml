@@ -4,5 +4,11 @@ language: objective-c
 osx_image: xcode8.3
 podfile: AKMediaViewerExample/Podfile
 
+rvm:
+  - 2.3.1
+
+before_install: 
+  - gem install cocoapods -v '1.2.0'
+
 script:
 - xcodebuild -workspace AKMediaViewerExample/AKMediaViewerExample.xcworkspace -scheme AKMediaViewerExample -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
