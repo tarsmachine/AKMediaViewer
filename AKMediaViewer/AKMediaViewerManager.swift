@@ -103,7 +103,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     override public init() {
 
         animationDuration = kAnimationDuration
-        backgroundColor = UIColor.init(white: 0.0, alpha: 0.8)
+        backgroundColor = UIColor(white: 0.0, alpha: 0.8)
         defocusOnVerticalSwipe = true
         elasticAnimation = true
         zoomEnabled = true
@@ -126,11 +126,11 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // Install focusing gesture on the specified view.
     public func installOnView(_ view: UIView) {
-        let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(AKMediaViewerManager.handleFocusGesture(_:)))
+        let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleFocusGesture(_:)))
         view.addGestureRecognizer(tapGesture)
         view.isUserInteractionEnabled = true
 
-        let pinchRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer.init(target: self, action: #selector(AKMediaViewerManager.handlePinchFocusGesture(_:)))
+        let pinchRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handlePinchFocusGesture(_:)))
         pinchRecognizer.delegate = self
         view.addGestureRecognizer(pinchRecognizer)
 
@@ -144,7 +144,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         // We need the view to be loaded.
         if focusViewController.view != nil {
             if isDefocusingWithTap {
-                let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(AKMediaViewerManager.handleDefocusGesture(_:)))
+                let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusGesture(_:)))
                 tapGesture.require(toFail: focusViewController.doubleTapGesture)
                 focusViewController.view.addGestureRecognizer(tapGesture)
             } else {
@@ -221,7 +221,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         // Draw the image into the context and retrieve the new bitmap image without alpha
         context.draw(imageRef, in: CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
         let imageRefWithoutAlpha: CGImage = context.makeImage()!
-        let imageWithoutAlpha: UIImage = UIImage.init(cgImage: imageRefWithoutAlpha, scale: image.scale, orientation: image.imageOrientation)
+        let imageWithoutAlpha: UIImage = UIImage(cgImage: imageRefWithoutAlpha, scale: image.scale, orientation: image.imageOrientation)
 
         return imageWithoutAlpha
     }
@@ -281,7 +281,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             return nil
         }
 
-        viewController = AKMediaViewerController.init(nibName: "AKMediaViewerController", bundle: Bundle.AKMediaFrameworkBundle())
+        viewController = AKMediaViewerController(nibName: "AKMediaViewerController", bundle: Bundle.AKMediaFrameworkBundle())
 
         installDefocusActionOnFocusViewController(viewController)
 
@@ -310,9 +310,9 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let data: Data
 
         do {
-            try data = Data.init(contentsOf: url, options: Data.ReadingOptions.dataReadingMapped)
+            try data = Data(contentsOf: url, options: Data.ReadingOptions.dataReadingMapped)
 
-            var image: UIImage = UIImage.init(data: data)!
+            var image: UIImage = UIImage(data: data)!
             image = decodedImageWithImage(image)
 
             DispatchQueue.main.async(execute: { () -> Void in
@@ -451,7 +451,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     }
 
     func animateCornerRadiusOfView(_ view: UIView, withDuration duration: TimeInterval, from initialValue: Float, to finalValue: Float) {
-        let animation: CABasicAnimation = CABasicAnimation.init(keyPath: "cornerRadius")
+        let animation: CABasicAnimation = CABasicAnimation(keyPath: "cornerRadius")
         animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
         animation.fromValue = initialValue
         animation.toValue = finalValue
@@ -569,14 +569,14 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     // MARK: - Dismiss on swipe
     func installSwipeGestureOnFocusView() {
 
-        var swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer.init(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
+        var swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
         swipeGesture.direction = UISwipeGestureRecognizerDirection.up
-        focusViewController!.view.addGestureRecognizer(swipeGesture)
+        focusViewController?.view.addGestureRecognizer(swipeGesture)
 
-        swipeGesture = UISwipeGestureRecognizer.init(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
+        swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
         swipeGesture.direction = UISwipeGestureRecognizerDirection.down
-        focusViewController!.view.addGestureRecognizer(swipeGesture)
-        focusViewController!.view.isUserInteractionEnabled = true
+        focusViewController?.view.addGestureRecognizer(swipeGesture)
+        focusViewController?.view.isUserInteractionEnabled = true
     }
 
     func handleDefocusBySwipeGesture(_ gesture: UISwipeGestureRecognizer) {

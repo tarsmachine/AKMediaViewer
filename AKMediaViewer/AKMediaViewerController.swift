@@ -133,7 +133,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     // MARK: - Public
 
     public func showPlayerWithURL(_ url: URL) {
-        playerView = PlayerView.init(frame: mainImageView.bounds)
+        playerView = PlayerView(frame: mainImageView.bounds)
         mainImageView.addSubview(self.playerView!)
         playerView?.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
         playerView?.isHidden = true
@@ -279,7 +279,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func buildVideoFrame() -> CGRect {
-        if self.player!.currentItem!.presentationSize.equalTo(CGSize.zero) {
+        if let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(CGSize.zero) {
             return CGRect.zero
         }
 

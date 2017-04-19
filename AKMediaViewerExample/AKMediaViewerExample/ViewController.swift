@@ -86,11 +86,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             fatalError("Wrong Cell Type")
         }
 
-        let path: String = String.init(format: "%d.jpg", indexPath.row + 1)
-        let image: UIImage = UIImage.init(named: path)!
+        let path: String = String(format: "%d.jpg", indexPath.row + 1)
+        let image: UIImage = UIImage(named: path)!
 
         cell.thumbnailView.image = image
-        cell.thumbnailView.tag = (indexPath as NSIndexPath).row + 1
+        cell.thumbnailView.tag = indexPath.row + 1
         mediaFocusManager.installOnView(cell.thumbnailView)
 
         return cell

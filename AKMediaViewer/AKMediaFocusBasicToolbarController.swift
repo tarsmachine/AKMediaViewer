@@ -17,7 +17,7 @@ public class AKMediaFocusBasicToolbarController: UIViewController {
 
         doneButton.setTitle(NSLocalizedString("Done", comment: "Done"), for: UIControlState())
         doneButton.setTitleColor(UIColor.white, for: UIControlState())
-        doneButton.backgroundColor =  UIColor.init(white: 0, alpha: 0.5)
+        doneButton.backgroundColor = UIColor(white: 0, alpha: 0.5)
         doneButton.sizeToFit()
 
         doneButton.frame = self.doneButton.frame.insetBy(dx: -20, dy: -4)
