@@ -34,23 +34,24 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         super.layoutSubviews()
 
         // center the zoom view as it becomes smaller than the size of the screen
-        let boundsSize: CGSize = self.bounds.size
-        var frameToCenter: CGRect = self.zoomImageView!.frame
+        if var frameToCenter = self.zoomImageView?.frame {
+            let boundsSize: CGSize = self.bounds.size
 
-        // center horizontally
-        if frameToCenter.size.width < boundsSize.width {
-            frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2
-        } else {
-            frameToCenter.origin.x = 0
-        }
+            // center horizontally
+            if frameToCenter.size.width < boundsSize.width {
+                frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2
+            } else {
+                frameToCenter.origin.x = 0
+            }
 
-        // center vertically
-        if frameToCenter.size.height < boundsSize.height {
-            frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2
-        } else {
-            frameToCenter.origin.y = 0
+            // center vertically
+            if frameToCenter.size.height < boundsSize.height {
+                frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2
+            } else {
+                frameToCenter.origin.y = 0
+            }
+            self.zoomImageView?.frame = frameToCenter
         }
-        self.zoomImageView!.frame = frameToCenter
     }
 
     override public var frame: CGRect {
@@ -58,7 +59,7 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
             return super.frame
         }
         set (newFrame) {
-            let sizeChanging: Bool = !newFrame.size.equalTo(self.frame.size)
+            let sizeChanging = !newFrame.size.equalTo(self.frame.size)
 
             if sizeChanging {
                 prepareToResize()
@@ -79,10 +80,10 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
             self.zoomScale = 1.0
 
             // make a new UIImageView for the new image
-            zoomImageView = UIImageView.init(image: image)
+            zoomImageView = UIImageView(image: image)
             self.addSubview(zoomImageView!)
         } else {
-            self.zoomImageView!.image = image
+            self.zoomImageView?.image = image
         }
         configureForImageSize(image.size)
     }

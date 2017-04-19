@@ -28,7 +28,7 @@ public class PlayerView: UIView {
         return avPlayer.player
     }
 
-    func setPlayer(_ player: AVPlayer) {
+    func setPlayer(_ player: AVPlayer?) {
         if let avPlayer = (layer as? AVPlayerLayer) {
             avPlayer.player = player
         }
@@ -60,8 +60,8 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     struct ObservedValue {
         static let PresentationSize = "presentationSize"
-        static let PLayerKeepUp = "playbackLikelyToKeepUp"
-        static let PLayerHasEmptyBuffer = "playbackBufferEmpty"
+        static let PlayerKeepUp = "playbackLikelyToKeepUp"
+        static let PlayerHasEmptyBuffer = "playbackBufferEmpty"
         static let Status = "status"
     }
 
@@ -119,8 +119,8 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             }
 
             item.removeObserver(self, forKeyPath: ObservedValue.PresentationSize)
-            item.removeObserver(self, forKeyPath: ObservedValue.PLayerKeepUp)
-            item.removeObserver(self, forKeyPath: ObservedValue.PLayerHasEmptyBuffer)
+            item.removeObserver(self, forKeyPath: ObservedValue.PlayerKeepUp)
+            item.removeObserver(self, forKeyPath: ObservedValue.PlayerHasEmptyBuffer)
             observersAdded = false
         }
     }
@@ -157,9 +157,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if playerView != nil {
-            playerView!.frame = mainImageView.bounds
-        }
+        playerView?.frame = mainImageView.bounds
     }
 
     // MARK: - Public
@@ -226,16 +224,16 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     public func showPlayerWithURL(_ url: URL) {
         playerView = PlayerView.init(frame: mainImageView.bounds)
         mainImageView.addSubview(self.playerView!)
-        playerView!.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
-        playerView!.isHidden = true
+        playerView?.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
+        playerView?.isHidden = true
 
         // install loading spinner for remote files
         if !url.isFileURL {
             self.activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
-            self.activityIndicator!.frame = UIScreen.main.bounds
-            self.activityIndicator!.hidesWhenStopped = true
+            self.activityIndicator?.frame = UIScreen.main.bounds
+            self.activityIndicator?.hidesWhenStopped = true
             view.addSubview(self.activityIndicator!)
-            self.activityIndicator!.startAnimating()
+            self.activityIndicator?.startAnimating()
         }
 
         DispatchQueue.main.async(execute: { () -> Void in
@@ -243,12 +241,12 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             self.removeObservers(player: self.player)
 
             self.player = AVPlayer(url: url)
-            self.playerView?.setPlayer(self.player!)
-            self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PresentationSize, options: .new, context: nil)
-            self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PLayerHasEmptyBuffer, options: .new, context: nil)
-            self.player!.currentItem?.addObserver(self, forKeyPath: ObservedValue.PLayerKeepUp, options: .new, context: nil)
+            self.playerView?.setPlayer(self.player)
+            self.player?.currentItem?.addObserver(self, forKeyPath: ObservedValue.PresentationSize, options: .new, context: nil)
+            self.player?.currentItem?.addObserver(self, forKeyPath: ObservedValue.PlayerHasEmptyBuffer, options: .new, context: nil)
+            self.player?.currentItem?.addObserver(self, forKeyPath: ObservedValue.PlayerKeepUp, options: .new, context: nil)
             self.observersAdded = true
-            self.player!.addObserver(self, forKeyPath: ObservedValue.Status, options: .initial, context: nil)
+            self.player?.addObserver(self, forKeyPath: ObservedValue.Status, options: .initial, context: nil)
             self.layoutControlView()
         })
     }
@@ -342,16 +340,13 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func layoutControlView() {
-        var frame: CGRect
-        let videoFrame: CGRect
-        let titleFrame: CGRect
-
+        
         if isAccessoryViewPinned() {
             return
         }
 
         if self.controlView == nil {
-            if let controlView: AKVideoControlView = AKVideoControlView.videoControlView() {
+            if let controlView = AKVideoControlView.videoControlView() {
                 controlView.translatesAutoresizingMaskIntoConstraints = false
                 controlView.scrubbing.player = player
                 self.controlView = controlView
@@ -359,14 +354,15 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             }
         }
 
-        videoFrame = buildVideoFrame()
-        frame = self.controlView!.frame
+        var frame = self.controlView!.frame
         frame.size.width = self.view.bounds.size.width - self.controlMargin * 2
         frame.origin.x = self.controlMargin
-        titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
+        
+        let videoFrame = buildVideoFrame()
+        let titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
         frame.origin.y =  titleFrame.origin.y - frame.size.height - self.controlMargin
         if videoFrame.size.width > 0 {
-            frame.origin.y = min(frame.origin.y, videoFrame.maxY - frame.size.height - self.controlMargin as CGFloat)
+            frame.origin.y = min(frame.origin.y, videoFrame.maxY - frame.size.height - self.controlMargin)
         }
         self.controlView!.frame = frame
     }
@@ -397,20 +393,18 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
         var frame: CGRect = CGRect.zero
-        var location: CGPoint
-        var contentView: UIView
-        var scale: CGFloat
+        var scale = imageScrollView.maximumZoomScale
 
         if imageScrollView.zoomScale == imageScrollView.minimumZoomScale {
-            scale = imageScrollView.maximumZoomScale
-            contentView = imageScrollView.delegate!.viewForZooming!(in: imageScrollView)!
-            location = gesture.location(in: contentView)
-            frame = CGRect(x: location.x*imageScrollView.maximumZoomScale - imageScrollView.bounds.size.width/2, y: location.y*imageScrollView.maximumZoomScale - imageScrollView.bounds.size.height/2, width: imageScrollView.bounds.size.width, height: imageScrollView.bounds.size.height)
+            if let contentView = imageScrollView.delegate?.viewForZooming?(in: imageScrollView) {
+                let location = gesture.location(in: contentView)
+                frame = CGRect(x: location.x * imageScrollView.maximumZoomScale - imageScrollView.bounds.size.width/2, y: location.y*imageScrollView.maximumZoomScale - imageScrollView.bounds.size.height/2, width: imageScrollView.bounds.size.width, height: imageScrollView.bounds.size.height)
+            }
         } else {
             scale = imageScrollView.minimumZoomScale
         }
 
-        UIView.animate(withDuration: 0.5, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState, animations: { () -> Void in
+        UIView.animate(withDuration: 0.5, delay: 0, options: .beginFromCurrentState, animations: { () -> Void in
             self.imageScrollView.zoomScale = scale
             self.imageScrollView.layoutIfNeeded()
             if scale == self.imageScrollView.maximumZoomScale {
@@ -439,11 +433,18 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     // MARK: - KVO
 
     override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        
+        guard let keyPath = keyPath else {
+            return
+        }
 
-        switch keyPath! {
+        switch keyPath {
 
-        case ObservedValue.PLayerKeepUp:
-            if (player?.currentItem?.isPlaybackLikelyToKeepUp)! {
+        case ObservedValue.PlayerKeepUp:
+            guard let playerCurrentItem = player?.currentItem else {
+                return
+            }
+            if playerCurrentItem.isPlaybackLikelyToKeepUp {
                 playPLayer()
             }
 
@@ -459,7 +460,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
                 activityIndicator?.startAnimating()
             }
 
-        case ObservedValue.PLayerHasEmptyBuffer:
+        case ObservedValue.PlayerHasEmptyBuffer:
             activityIndicator?.startAnimating()
 
         case ObservedValue.PresentationSize:
