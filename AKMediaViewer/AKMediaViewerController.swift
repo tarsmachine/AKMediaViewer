@@ -10,7 +10,6 @@ import Foundation
 import AVFoundation
 import UIKit
 
-let kDefaultOrientationAnimationDuration: TimeInterval = 0.4
 let kDefaultControlMargin: CGFloat = 5
 
 // MARK: - PlayerView
@@ -53,7 +52,6 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     var accessoryViewTimer: Timer?
     var player: AVPlayer?
-    var previousOrientation: UIDeviceOrientation = UIDeviceOrientation.unknown
     var activityIndicator: UIActivityIndicatorView?
 
     var observersAdded = false
@@ -101,15 +99,6 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     override public func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         removeObservers(player: self.player)
-
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
-    }
-
-    override public func viewDidAppear(_ animated: Bool) {
-        NotificationCenter.default.addObserver(self, selector: #selector(AKMediaViewerController.orientationDidChangeNotification(_:)), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        super.viewDidAppear(animated)
     }
 
     func removeObservers(player: AVPlayer?) {
@@ -129,25 +118,6 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         return UIInterfaceOrientationMask.portrait
     }
 
-    func isParentSupportingInterfaceOrientation(_ toInterfaceOrientation: UIInterfaceOrientation) -> Bool {
-        switch toInterfaceOrientation {
-        case UIInterfaceOrientation.portrait:
-            return parent!.supportedInterfaceOrientations.contains(UIInterfaceOrientationMask.portrait)
-
-        case UIInterfaceOrientation.portraitUpsideDown:
-            return parent!.supportedInterfaceOrientations.contains(UIInterfaceOrientationMask.portraitUpsideDown)
-
-        case UIInterfaceOrientation.landscapeLeft:
-            return parent!.supportedInterfaceOrientations.contains(UIInterfaceOrientationMask.landscapeLeft)
-
-        case UIInterfaceOrientation.landscapeRight:
-            return parent!.supportedInterfaceOrientations.contains(UIInterfaceOrientationMask.landscapeRight)
-
-        case UIInterfaceOrientation.unknown:
-            return true
-        }
-    }
-
     override public func beginAppearanceTransition(_ isAppearing: Bool, animated: Bool) {
         if !isAppearing {
             accessoryView.alpha = 0
@@ -161,65 +131,6 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     // MARK: - Public
-
-    public func updateOrientationAnimated(_ animated: Bool) {
-
-        var transform: CGAffineTransform?
-        var frame: CGRect
-        var duration: TimeInterval = kDefaultOrientationAnimationDuration
-
-        if UIDevice.current.orientation == previousOrientation {
-            return
-        }
-
-        if UIDeviceOrientationIsLandscape(UIDevice.current.orientation) && UIDeviceOrientationIsLandscape(previousOrientation) ||
-            UIDeviceOrientationIsPortrait(UIDevice.current.orientation) && UIDeviceOrientationIsPortrait(previousOrientation) {
-            duration *= 2
-        }
-
-        if(UIDevice.current.orientation == UIDeviceOrientation.portrait) || isParentSupportingInterfaceOrientation(UIApplication.shared.statusBarOrientation) {
-            transform = CGAffineTransform.identity
-        } else {
-            switch UIDevice.current.orientation {
-            case UIDeviceOrientation.landscapeRight:
-                if parent!.interfaceOrientation == UIInterfaceOrientation.portrait {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(-Double.pi / 2))
-                } else {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
-                }
-
-            case UIDeviceOrientation.landscapeLeft:
-                if parent!.interfaceOrientation == UIInterfaceOrientation.portrait {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
-                } else {
-                    transform = CGAffineTransform(rotationAngle: CGFloat(-Double.pi / 2))
-                }
-
-            case UIDeviceOrientation.portrait:
-                transform = CGAffineTransform.identity
-
-            case UIDeviceOrientation.portraitUpsideDown:
-                transform = CGAffineTransform(rotationAngle: CGFloat.pi)
-
-            case UIDeviceOrientation.faceDown: return
-            case UIDeviceOrientation.faceUp: return
-            case UIDeviceOrientation.unknown: return
-            }
-        }
-
-        if animated {
-            frame = contentView.frame
-            UIView.animate(withDuration: duration, animations: { () -> Void in
-                self.contentView.transform = transform!
-                self.contentView.frame = frame
-            })
-        } else {
-            frame = self.contentView.frame
-            self.contentView.transform = transform!
-            self.contentView.frame = frame
-        }
-        self.previousOrientation = UIDevice.current.orientation
-    }
 
     public func showPlayerWithURL(_ url: URL) {
         playerView = PlayerView.init(frame: mainImageView.bounds)
@@ -340,7 +251,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func layoutControlView() {
-        
+
         if isAccessoryViewPinned() {
             return
         }
@@ -357,7 +268,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         var frame = self.controlView!.frame
         frame.size.width = self.view.bounds.size.width - self.controlMargin * 2
         frame.origin.x = self.controlMargin
-        
+
         let videoFrame = buildVideoFrame()
         let titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
         frame.origin.y =  titleFrame.origin.y - frame.size.height - self.controlMargin
@@ -424,16 +335,10 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         showAccessoryView(imageScrollView.zoomScale == imageScrollView.minimumZoomScale)
     }
 
-    // MARK: - Notifications
-
-    func orientationDidChangeNotification(_ notification: Notification) {
-        updateOrientationAnimated(true)
-    }
-
     // MARK: - KVO
 
     override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
+
         guard let keyPath = keyPath else {
             return
         }

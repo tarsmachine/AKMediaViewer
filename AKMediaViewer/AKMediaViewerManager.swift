@@ -410,7 +410,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 imageView.transform = CGAffineTransform.identity
                 initialFrame = imageView.frame
                 imageView.frame = frame
-                focusViewController!.updateOrientationAnimated(false)
+
                 // This is the final image frame. No transform.
                 untransformedFinalImageFrame = imageView.frame
                 frame =  self.elasticAnimation ? self.rectInsetsForRect(untransformedFinalImageFrame, withRatio: -kAnimateElasticSizeRatio) : untransformedFinalImageFrame
