@@ -115,7 +115,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     override public var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.portrait
+        return .portrait
     }
 
     override public func beginAppearanceTransition(_ isAppearing: Bool, animated: Bool) {

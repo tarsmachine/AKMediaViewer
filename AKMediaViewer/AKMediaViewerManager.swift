@@ -134,7 +134,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         pinchRecognizer.delegate = self
         view.addGestureRecognizer(pinchRecognizer)
 
-        let url: URL = delegate!.mediaViewerManager(self, mediaURLForView: view)
+        let url = delegate?.mediaViewerManager(self, mediaURLForView: view)
         if addPlayIconOnVideo && isVideoURL(url) {
             videoBehavior.addVideoIconToView(view, image: playImage)
         }
@@ -295,7 +295,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             return viewController
         }
 
-        if isVideoURL(url!) {
+        if isVideoURL(url) {
             viewController.showPlayerWithURL(url!)
         } else {
             DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: { () -> Void in
@@ -323,8 +323,10 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    func isVideoURL(_ url: URL) -> Bool {
-        let fileExtension: String = url.pathExtension.lowercased()
+    func isVideoURL(_ url: URL?) -> Bool {
+        guard let fileExtension = url?.pathExtension.lowercased() else {
+            return false
+        }
         return (fileExtension == "mp4" || fileExtension == "mov")
     }
 
