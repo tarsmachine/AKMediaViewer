@@ -54,7 +54,7 @@ To install, add the following line to your Podfile:
 The delegate returns mainly a media URL, a media title and a parent view controller. 
 * Declare all your views that you want focusable by calling `.installOnView(view: UIView)`
 
-###Implementing
+### Implementing
 In your View Controller, add the code below to the image views need the focus feature.
 
 ```swift
@@ -107,7 +107,7 @@ If you need to focus or defocus a view programmatically, you can call `startFocu
 mediaViewerManager.startFocusingView(mediaView)
 ```
 
-###Properties
+### Properties
 ```swift
 public var animationDuration: TimeInterval
 ```
