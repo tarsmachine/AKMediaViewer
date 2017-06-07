@@ -109,7 +109,7 @@ mediaViewerManager.startFocusingView(mediaView)
 
 ###Properties
 ```swift
-public var animationDuration: NSTimeInterval
+public var animationDuration: TimeInterval
 ```
 The animation duration. Defaults to 0.5.
 ```swift

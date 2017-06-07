@@ -11,8 +11,8 @@ import AKMediaViewer
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, AKMediaViewerDelegate {
 
-    var statusBarHidden: Bool = false
-    var mediaNames: [String] = ["1f.jpg", "2f.jpg", "3f.mp4", "4f.jpg"]
+    var statusBarHidden = false
+    var mediaNames = ["1f.jpg", "2f.jpg", "3f.mp4", "4f.jpg"]
     var mediaFocusManager = AKMediaViewerManager()
 
     @IBOutlet weak var tableView: UITableView?
@@ -30,11 +30,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     override open var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.all
+        return .all
     }
 
     override open var prefersStatusBarHidden: Bool {
-            return self.statusBarHidden
+        return statusBarHidden
     }
 
     // MARK: - <AKMediaViewerDelegate>
@@ -45,16 +45,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func mediaViewerManager(_ manager: AKMediaViewerManager, mediaURLForView view: UIView) -> URL {
         let index: Int = view.tag - 1
-        let name: NSString = mediaNames[index] as NSString
+        let name = mediaNames[index] as NSString
         let url = Bundle.main.url(forResource: name.deletingPathExtension, withExtension: name.pathExtension)!
 
         return url
     }
 
     func mediaViewerManager(_ manager: AKMediaViewerManager, titleForView view: UIView) -> String {
-        let url: URL = mediaViewerManager(manager, mediaURLForView: view)
-        let fileExtension: String = url.pathExtension.lowercased()
-        let isVideo: Bool = fileExtension == "mp4" || fileExtension == "mov"
+        let url = mediaViewerManager(manager, mediaURLForView: view)
+        let fileExtension = url.pathExtension.lowercased()
+        let isVideo = fileExtension == "mp4" || fileExtension == "mov"
 
         return (isVideo ? "Videos are also supported." : "Of course, you can zoom in and out on the image.")
     }
@@ -64,14 +64,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
          *  Call here setDefaultDoneButtonText, if you want to change the text and color of default "Done" button
          *  eg: mediaFocusManager!.setDefaultDoneButtonText("Panda", withColor: UIColor.purple)
          */
-        self.statusBarHidden = true
+        statusBarHidden = true
         if self.responds(to: #selector(UIViewController.setNeedsStatusBarAppearanceUpdate)) {
             self.setNeedsStatusBarAppearanceUpdate()
         }
     }
 
     func mediaViewerManagerWillDisappear(_ mediaFocusManager: AKMediaViewerManager) {
-        self.statusBarHidden = false
+        statusBarHidden = false
         if self.responds(to: #selector(UIViewController.setNeedsStatusBarAppearanceUpdate)) {
             self.setNeedsStatusBarAppearanceUpdate()
         }
@@ -86,10 +86,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             fatalError("Wrong Cell Type")
         }
 
-        let path: String = String(format: "%d.jpg", indexPath.row + 1)
-        let image: UIImage = UIImage(named: path)!
-
-        cell.thumbnailView.image = image
+        cell.thumbnailView.image = UIImage(named: "\(indexPath.row + 1).jpg")
         cell.thumbnailView.tag = indexPath.row + 1
         mediaFocusManager.installOnView(cell.thumbnailView)
 
