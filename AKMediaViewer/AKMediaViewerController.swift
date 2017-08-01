@@ -118,8 +118,8 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     override public func beginAppearanceTransition(_ isAppearing: Bool, animated: Bool) {
         if !isAppearing {
-            accessoryView.alpha = 0
-            playerView?.alpha = 0
+            accessoryView.alpha = 0.0
+            playerView?.alpha = 0.0
         }
     }
 
@@ -240,12 +240,12 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         }
 
         UIView.animate(withDuration: 0.5, delay: 0, options: [UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.allowUserInteraction], animations: { () -> Void in
-            self.accessoryView.alpha = (visible ? 1 : 0)
+            self.accessoryView.alpha = (visible ? 1.0 : 0.0)
         }, completion: nil)
     }
 
     func accessoryViewsVisible() -> Bool {
-        return (accessoryView.alpha == 1)
+        return (accessoryView.alpha == 1.0)
     }
 
     func layoutControlView() {
@@ -259,29 +259,30 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
                 controlView.translatesAutoresizingMaskIntoConstraints = false
                 controlView.scrubbing.player = player
                 self.controlView = controlView
-                accessoryView.addSubview(self.controlView!)
+                accessoryView.addSubview(controlView)
             }
         }
 
-        var frame = self.controlView!.frame
-        frame.size.width = self.view.bounds.size.width - self.controlMargin * 2
-        frame.origin.x = self.controlMargin
+        if var controlViewframe = self.controlView?.frame {
+            controlViewframe.size.width = self.view.bounds.size.width - self.controlMargin * 2
+            controlViewframe.origin.x = self.controlMargin
 
-        let videoFrame = buildVideoFrame()
-        let titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
-        frame.origin.y =  titleFrame.origin.y - frame.size.height - self.controlMargin
-        if videoFrame.size.width > 0 {
-            frame.origin.y = min(frame.origin.y, videoFrame.maxY - frame.size.height - self.controlMargin)
+            let videoFrame = buildVideoFrame()
+            let titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
+            controlViewframe.origin.y =  titleFrame.origin.y - controlViewframe.size.height - self.controlMargin
+            if videoFrame.size.width > 0 {
+                controlViewframe.origin.y = min(controlViewframe.origin.y, videoFrame.maxY - controlViewframe.size.height - self.controlMargin)
+            }
+            self.controlView!.frame = controlViewframe
         }
-        self.controlView!.frame = frame
     }
 
     func buildVideoFrame() -> CGRect {
         if let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(CGSize.zero) {
-            return CGRect.zero
+            return .zero
         }
 
-        var frame: CGRect = AVMakeRect(aspectRatio: self.player!.currentItem!.presentationSize, insideRect: self.playerView!.bounds)
+        var frame = AVMakeRect(aspectRatio: self.player!.currentItem!.presentationSize, insideRect: self.playerView!.bounds)
         frame = frame.integral
 
         return frame
