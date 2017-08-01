@@ -126,11 +126,11 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // Install focusing gesture on the specified view.
     public func installOnView(_ view: UIView) {
-        let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleFocusGesture(_:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleFocusGesture(_:)))
         view.addGestureRecognizer(tapGesture)
         view.isUserInteractionEnabled = true
 
-        let pinchRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handlePinchFocusGesture(_:)))
+        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handlePinchFocusGesture(_:)))
         pinchRecognizer.delegate = self
         view.addGestureRecognizer(pinchRecognizer)
 
@@ -140,11 +140,11 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    func installDefocusActionOnFocusViewController(_ focusViewController: AKMediaViewerController!) {
+    func installDefocusActionOnFocusViewController(_ focusViewController: AKMediaViewerController) {
         // We need the view to be loaded.
         if focusViewController.view != nil {
             if isDefocusingWithTap {
-                let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusGesture(_:)))
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusGesture(_:)))
                 tapGesture.require(toFail: focusViewController.doubleTapGesture)
                 focusViewController.view.addGestureRecognizer(tapGesture)
             } else {
@@ -153,18 +153,20 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
     }
 
-    func setupAccessoryViewOnFocusViewController(_ focusViewController: AKMediaViewerController!) {
+    func setupAccessoryViewOnFocusViewController(_ focusViewController: AKMediaViewerController) {
         if topAccessoryController == nil {
-            let defaultController: AKMediaFocusBasicToolbarController = AKMediaFocusBasicToolbarController(nibName: "AKMediaFocusBasicToolbar", bundle: Bundle.AKMediaFrameworkBundle())
-            defaultController.view.backgroundColor = UIColor.clear
-            defaultController.doneButton.addTarget(self, action: #selector(AKMediaViewerManager.endFocusing), for:UIControlEvents.touchUpInside)
+            let defaultController = AKMediaFocusBasicToolbarController(nibName: "AKMediaFocusBasicToolbar", bundle: Bundle.AKMediaFrameworkBundle())
+            defaultController.view.backgroundColor = .clear
+            defaultController.doneButton.addTarget(self, action: #selector(AKMediaViewerManager.endFocusing), for: .touchUpInside)
             topAccessoryController = defaultController
         }
 
-        var frame: CGRect = topAccessoryController!.view.frame
-        frame.size.width = focusViewController.accessoryView.frame.size.width
-        topAccessoryController!.view.frame = frame
-        focusViewController.accessoryView.addSubview(topAccessoryController!.view)
+        if let topAccessoryController = topAccessoryController {
+            var frame = topAccessoryController.view.frame
+            frame.size.width = focusViewController.accessoryView.frame.size.width
+            topAccessoryController.view.frame = frame
+            focusViewController.accessoryView.addSubview(topAccessoryController.view)
+        }
     }
 
     // MARK: - Utilities
@@ -227,13 +229,9 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     }
 
     func rectInsetsForRect(_ frame: CGRect, withRatio ratio: CGFloat) -> CGRect {
-        let dx: CGFloat
-        let dy: CGFloat
-        var resultFrame: CGRect
-
-        dx = frame.size.width * ratio
-        dy = frame.size.height * ratio
-        resultFrame = frame.insetBy(dx: dx, dy: dy)
+        let dx = frame.size.width * ratio
+        let dy = frame.size.height * ratio
+        var resultFrame = frame.insetBy(dx: dx, dy: dy)
         resultFrame = CGRect(x: round(resultFrame.origin.x), y: round(resultFrame.origin.y), width: round(resultFrame.size.width), height: round(resultFrame.size.height))
 
         return resultFrame
@@ -242,11 +240,8 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     func sizeThatFitsInSize(_ boundingSize: CGSize, initialSize size: CGSize) -> CGSize {
         // Compute the final size that fits in boundingSize in order to keep aspect ratio from initialSize.
         let fittingSize: CGSize
-        let widthRatio: CGFloat
-        let heightRatio: CGFloat
-
-        widthRatio = boundingSize.width / size.width
-        heightRatio = boundingSize.height / size.height
+        let widthRatio = boundingSize.width / size.width
+        let heightRatio = boundingSize.height / size.height
 
         if widthRatio < heightRatio {
             fittingSize = CGSize(width: boundingSize.width, height: floor(size.height * widthRatio))
@@ -276,7 +271,8 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
 
         url = delegate?.mediaViewerManager(self, mediaURLForView: mediaView)
-        if url == nil {
+
+        guard url != nil else {
             print("Warning: url is nil")
             return nil
         }
@@ -289,7 +285,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         viewController.mainImageView.image = image
         viewController.mainImageView.contentMode = imageView!.contentMode
 
-        let cachedImage: UIImage? = delegate?.mediaViewerManager?(self, cachedImageForView: mediaView)
+        let cachedImage = delegate?.mediaViewerManager?(self, cachedImageForView: mediaView)
         if cachedImage != nil {
             viewController.mainImageView.image = cachedImage
             return viewController
@@ -336,20 +332,16 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     public func startFocusingView(_ mediaView: UIView) {
 
         let parentViewController: UIViewController
-        let focusViewController: AKMediaViewerController?
         let center: CGPoint
         let imageView: UIImageView
-        let duration: TimeInterval
         var finalImageFrame: CGRect?
-        var untransformedFinalImageFrame: CGRect = CGRect.zero
+        var untransformedFinalImageFrame: CGRect = .zero
 
-        focusViewController = focusViewControllerForView(mediaView)!
-
-        if focusViewController == nil {
+        guard let focusViewController = focusViewControllerForView(mediaView) else {
             return
         }
 
-        self.focusViewController = focusViewController!
+        self.focusViewController = focusViewController
 
         if self.defocusOnVerticalSwipe {
             installSwipeGestureOnFocusView()
@@ -360,13 +352,13 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
         self.mediaView = mediaView
         parentViewController = (delegate?.parentViewControllerForMediaViewerManager(self))!
-        parentViewController.addChildViewController(focusViewController!)
-        parentViewController.view.addSubview(focusViewController!.view)
+        parentViewController.addChildViewController(focusViewController)
+        parentViewController.view.addSubview(focusViewController.view)
 
-        focusViewController!.view.frame = parentViewController.view.bounds
+        focusViewController.view.frame = parentViewController.view.bounds
         mediaView.isHidden = true
 
-        imageView = focusViewController!.mainImageView
+        imageView = focusViewController.mainImageView
         center = (imageView.superview?.convert(mediaView.center, from: mediaView.superview))!
         imageView.center = center
         imageView.transform = mediaView.transform
@@ -383,16 +375,16 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         if imageView.contentMode == UIViewContentMode.scaleAspectFill {
             let size: CGSize = sizeThatFitsInSize(finalImageFrame!.size, initialSize: imageView.image!.size)
             finalImageFrame!.size = size
-            finalImageFrame!.origin.x = (focusViewController!.view.bounds.size.width - size.width) / 2
-            finalImageFrame!.origin.y = (focusViewController!.view.bounds.size.height - size.height) / 2
+            finalImageFrame!.origin.x = (focusViewController.view.bounds.size.width - size.width) / 2
+            finalImageFrame!.origin.y = (focusViewController.view.bounds.size.height - size.height) / 2
         }
 
         UIView .animate(withDuration: self.animationDuration) { () -> Void in
-            focusViewController!.view.backgroundColor = self.backgroundColor
-            focusViewController?.beginAppearanceTransition(true, animated: true)
+            focusViewController.view.backgroundColor = self.backgroundColor
+            focusViewController.beginAppearanceTransition(true, animated: true)
         }
 
-        duration = (elasticAnimation ? animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
+        let duration = (elasticAnimation ? animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
 
         UIView.animate(withDuration: self.animationDuration,
             animations: { () -> Void in
@@ -489,7 +481,6 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // Start the close animation on the current focused view.
     public func endFocusing() {
-        let duration: TimeInterval
         let contentView: UIView
 
         if isZooming && gestureDisabledDuringZooming {
@@ -508,7 +499,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             self.focusViewController!.beginAppearanceTransition(false, animated: true)
         }
 
-        duration = (self.elasticAnimation ? self.animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
+        let duration = (self.elasticAnimation ? self.animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
 
         if self.mediaView.layer.cornerRadius > 0 {
             animateCornerRadiusOfView(contentView, withDuration: duration, from: 0.0, to: Float(self.mediaView.layer.cornerRadius))
@@ -571,23 +562,22 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     // MARK: - Dismiss on swipe
     func installSwipeGestureOnFocusView() {
 
-        var swipeGesture: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
-        swipeGesture.direction = UISwipeGestureRecognizerDirection.up
+        var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
+        swipeGesture.direction = .up
         focusViewController?.view.addGestureRecognizer(swipeGesture)
 
         swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
-        swipeGesture.direction = UISwipeGestureRecognizerDirection.down
+        swipeGesture.direction = .down
         focusViewController?.view.addGestureRecognizer(swipeGesture)
         focusViewController?.view.isUserInteractionEnabled = true
     }
 
     func handleDefocusBySwipeGesture(_ gesture: UISwipeGestureRecognizer) {
         let contentView: UIView
-        let offset: CGFloat
-        let duration: TimeInterval = self.animationDuration
+        let duration = self.animationDuration
 
         focusViewController!.defocusWillStart()
-        offset = (gesture.direction == UISwipeGestureRecognizerDirection.up ? -kSwipeOffset : kSwipeOffset)
+        let offset = (gesture.direction == UISwipeGestureRecognizerDirection.up ? -kSwipeOffset : kSwipeOffset)
         contentView = focusViewController!.mainImageView
 
         UIView.animate(withDuration: duration) {

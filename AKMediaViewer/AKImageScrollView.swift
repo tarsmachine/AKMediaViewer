@@ -35,7 +35,7 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
 
         // center the zoom view as it becomes smaller than the size of the screen
         if var frameToCenter = self.zoomImageView?.frame {
-            let boundsSize: CGSize = self.bounds.size
+            let boundsSize = self.bounds.size
 
             // center horizontally
             if frameToCenter.size.width < boundsSize.width {
@@ -96,18 +96,19 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
     }
 
     func setMaxMinZoomScalesForCurrentBounds() {
-        let boundsSize: CGSize = self.bounds.size
-        var maxScale: CGFloat = 1
+
+        let boundsSize = self.bounds.size
+        var maxScale: CGFloat = 1.0
 
         // calculate min/max zoomscale
-        let xScale: CGFloat = boundsSize.width  / imageSize.width    // the scale needed to perfectly fit the image width-wise
-        let yScale: CGFloat = boundsSize.height / imageSize.height   // the scale needed to perfectly fit the image height-wise
-        let minScale: CGFloat = min(xScale, yScale)                   // use minimum of these to allow the image to become fully visible
+        let xScale = boundsSize.width  / imageSize.width    // the scale needed to perfectly fit the image width-wise
+        let yScale = boundsSize.height / imageSize.height   // the scale needed to perfectly fit the image height-wise
+        let minScale = min(xScale, yScale)                   // use minimum of these to allow the image to become fully visible
 
         // Image must fit the screen, even if its size is smaller.
-        let xImageScale: CGFloat = maxScale * (imageSize.width / boundsSize.width)
-        let yImageScale: CGFloat = maxScale * (imageSize.height / boundsSize.width)
-        var maxImageScale: CGFloat = max(xImageScale, yImageScale)
+        let xImageScale = maxScale * (imageSize.width / boundsSize.width)
+        let yImageScale = maxScale * (imageSize.height / boundsSize.width)
+        var maxImageScale = max(xImageScale, yImageScale)
 
         maxImageScale = max(minScale, maxImageScale)
         maxScale = min(maxScale, maxImageScale)

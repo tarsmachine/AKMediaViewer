@@ -10,8 +10,6 @@ import Foundation
 import AVFoundation
 import UIKit
 
-let kDefaultControlMargin: CGFloat = 5
-
 // MARK: - PlayerView
 
 public class PlayerView: UIView {
@@ -68,7 +66,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
         doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerController.handleDoubleTap(_:)))
         doubleTapGesture.numberOfTapsRequired = 2
-        controlMargin = kDefaultControlMargin
+        controlMargin = 5.0
 
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerController.handleTap(_:)))
         tapGesture.require(toFail: doubleTapGesture)
@@ -200,7 +198,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func installZoomView() {
-        let scrollView: AKImageScrollView = AKImageScrollView(frame: contentView.bounds)
+        let scrollView = AKImageScrollView(frame: contentView.bounds)
         scrollView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         scrollView.delegate = self
         imageScrollView = scrollView
@@ -213,7 +211,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     func uninstallZoomView() {
         if let zoomImageViewFrame = imageScrollView.zoomImageView?.frame {
-            let frame: CGRect = contentView.convert(zoomImageViewFrame, from: imageScrollView)
+            let frame = contentView.convert(zoomImageViewFrame, from: imageScrollView)
             imageScrollView.isHidden = true
             mainImageView.isHidden = false
             mainImageView.frame = frame
@@ -225,7 +223,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func pinView(_ view: UIView) {
-        let frame: CGRect = self.view.convert(view.frame, from: view.superview)
+        let frame = self.view.convert(view.frame, from: view.superview)
         view.transform = view.superview!.transform
         self.view.addSubview(view)
         view.frame = frame
@@ -303,7 +301,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
-        var frame: CGRect = CGRect.zero
+        var frame = CGRect.zero
         var scale = imageScrollView.maximumZoomScale
 
         if imageScrollView.zoomScale == imageScrollView.minimumZoomScale {
