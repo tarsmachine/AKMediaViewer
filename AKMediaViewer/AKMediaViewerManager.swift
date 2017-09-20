@@ -296,7 +296,9 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         } else {
             DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: { () -> Void in
                 self.loadImageFromURL(url!, onImageView: viewController.mainImageView)
-                viewController.mainImageView.isHidden = false
+                DispatchQueue.main.async(execute: { () -> Void in
+                    viewController.mainImageView.isHidden = false
+                })
             })
         }
         return viewController
