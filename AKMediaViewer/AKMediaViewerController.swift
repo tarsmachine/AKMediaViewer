@@ -192,7 +192,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         }
     }
 
-    func removeAccessoryViewTimer() {
+    @objc func removeAccessoryViewTimer() {
         accessoryViewTimer?.invalidate()
         showAccessoryView(false)
     }
@@ -295,13 +295,13 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     // MARK: - Actions
 
-    func handleTap(_ gesture: UITapGestureRecognizer) {
+    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
         if imageScrollView.zoomScale == imageScrollView.minimumZoomScale {
             showAccessoryView(!accessoryViewsVisible())
         }
     }
 
-    func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+    @objc func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
         var frame = CGRect.zero
         var scale = imageScrollView.maximumZoomScale
 

@@ -482,7 +482,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     }
 
     // Start the close animation on the current focused view.
-    public func endFocusing() {
+    @objc public func endFocusing() {
         let contentView: UIView
 
         if isZooming && gestureDisabledDuringZooming {
@@ -540,17 +540,17 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // MARK: - Gestures
 
-    func handlePinchFocusGesture(_ gesture: UIPinchGestureRecognizer) {
+    @objc func handlePinchFocusGesture(_ gesture: UIPinchGestureRecognizer) {
         if gesture.state == UIGestureRecognizerState.began && !isZooming && gesture.scale > 1 {
             startFocusingView(gesture.view!)
         }
     }
 
-    func handleFocusGesture(_ gesture: UIGestureRecognizer) {
+    @objc func handleFocusGesture(_ gesture: UIGestureRecognizer) {
         startFocusingView(gesture.view!)
     }
 
-    func handleDefocusGesture(_ gesture: UIGestureRecognizer) {
+    @objc func handleDefocusGesture(_ gesture: UIGestureRecognizer) {
         endFocusing()
     }
 
@@ -574,7 +574,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         focusViewController?.view.isUserInteractionEnabled = true
     }
 
-    func handleDefocusBySwipeGesture(_ gesture: UISwipeGestureRecognizer) {
+    @objc func handleDefocusBySwipeGesture(_ gesture: UISwipeGestureRecognizer) {
         let contentView: UIView
         let duration = self.animationDuration
 
