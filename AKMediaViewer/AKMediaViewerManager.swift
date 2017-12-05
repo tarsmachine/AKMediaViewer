@@ -424,7 +424,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                     animations: { () -> Void in
                         var frame: CGRect = untransformedFinalImageFrame
-                        frame = (self.elasticAnimation ? self.rectInsetsForRect(frame, withRatio:kAnimateElasticSizeRatio * kAnimateElasticSecondMoveSizeRatio) : frame)
+                        frame = (self.elasticAnimation ? self.rectInsetsForRect(frame, withRatio: kAnimateElasticSizeRatio * kAnimateElasticSecondMoveSizeRatio) : frame)
                         imageView.frame = frame
                     }, completion: { (_) -> Void in
                         UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,

@@ -336,7 +336,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     // MARK: - KVO
 
-    override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
 
         guard let keyPath = keyPath else {
             return
