@@ -13,8 +13,8 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
 
     public var zoomImageView: UIImageView?
 
-    var imageSize: CGSize = CGSize.zero
-    var pointToCenterAfterResize: CGPoint = CGPoint.zero
+    var imageSize: CGSize = .zero
+    var pointToCenterAfterResize: CGPoint = .zero
     var scaleToRestoreAfterResize: CGFloat = 0.0
 
     override public init(frame: CGRect) {
@@ -101,9 +101,9 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         var maxScale: CGFloat = 1.0
 
         // calculate min/max zoomscale
-        let xScale = boundsSize.width / imageSize.width    // the scale needed to perfectly fit the image width-wise
+        let xScale = boundsSize.width / imageSize.width     // the scale needed to perfectly fit the image width-wise
         let yScale = boundsSize.height / imageSize.height   // the scale needed to perfectly fit the image height-wise
-        let minScale = min(xScale, yScale)                   // use minimum of these to allow the image to become fully visible
+        let minScale = min(xScale, yScale)                  // use minimum of these to allow the image to become fully visible
 
         // Image must fit the screen, even if its size is smaller.
         let xImageScale = maxScale * (imageSize.width / boundsSize.width)
@@ -169,12 +169,12 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
     }
 
     func maximumContentOffset() -> CGPoint {
-        let contentSize: CGSize = self.contentSize
-        let boundsSize: CGSize = self.bounds.size
+        let contentSize = self.contentSize
+        let boundsSize = self.bounds.size
         return CGPoint(x: contentSize.width - boundsSize.width, y: contentSize.height - boundsSize.height)
     }
 
     func minimumContentOffset() -> CGPoint {
-        return CGPoint.zero
+        return .zero
     }
 }

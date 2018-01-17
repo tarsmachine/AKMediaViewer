@@ -133,12 +133,12 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     public func showPlayerWithURL(_ url: URL) {
         playerView = PlayerView(frame: mainImageView.bounds)
         mainImageView.addSubview(self.playerView!)
-        playerView?.autoresizingMask = [UIViewAutoresizing.flexibleWidth, UIViewAutoresizing.flexibleHeight]
+        playerView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         playerView?.isHidden = true
 
         // install loading spinner for remote files
         if !url.isFileURL {
-            self.activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
+            self.activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
             self.activityIndicator?.frame = UIScreen.main.bounds
             self.activityIndicator?.hidesWhenStopped = true
             view.addSubview(self.activityIndicator!)
@@ -279,14 +279,13 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     }
 
     func buildVideoFrame() -> CGRect {
-        if let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(CGSize.zero) {
+
+        guard let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(.zero) else {
             return .zero
         }
 
-        var frame = AVMakeRect(aspectRatio: self.player!.currentItem!.presentationSize, insideRect: self.playerView!.bounds)
-        frame = frame.integral
-
-        return frame
+        let frame = AVMakeRect(aspectRatio: playerCurrentItem.presentationSize, insideRect: self.playerView!.bounds)
+        return frame.integral
     }
 
     func playPLayer() {
