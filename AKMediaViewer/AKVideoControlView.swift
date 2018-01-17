@@ -20,7 +20,7 @@ public class AKVideoControlView: UIView {
 
     override public func awakeFromNib() {
         super.awakeFromNib()
-        scrubbing.addObserver(self, forKeyPath: "player", options: NSKeyValueObservingOptions.new, context: nil)
+        scrubbing.addObserver(self, forKeyPath: "player", options: .new, context: nil)
     }
 
     deinit {
@@ -48,7 +48,7 @@ public class AKVideoControlView: UIView {
     override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "player" {
             if scrubbing.player != nil {
-                scrubbing.player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions.new, context: nil)
+                scrubbing.player.addObserver(self, forKeyPath: "rate", options: .new, context: nil)
             }
         } else {
             if let player = object as? AVPlayer {

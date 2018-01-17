@@ -14,6 +14,7 @@ public class AKMediaFocusBasicToolbarController: UIViewController {
     @IBOutlet var doneButton: UIButton!
 
     public override func viewDidLoad() {
+        super.viewDidLoad()
 
         doneButton.setTitle(NSLocalizedString("Done", comment: "Done"), for: UIControlState())
         doneButton.setTitleColor(UIColor.white, for: UIControlState())

@@ -192,7 +192,8 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         }
     }
 
-    @objc func removeAccessoryViewTimer() {
+    @objc
+    func removeAccessoryViewTimer() {
         accessoryViewTimer?.invalidate()
         showAccessoryView(false)
     }
@@ -269,7 +270,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
             let videoFrame = buildVideoFrame()
             let titleFrame = self.controlView!.superview!.convert(titleLabel.frame, from: titleLabel.superview)
-            controlViewframe.origin.y =  titleFrame.origin.y - controlViewframe.size.height - self.controlMargin
+            controlViewframe.origin.y = titleFrame.origin.y - controlViewframe.size.height - self.controlMargin
             if videoFrame.size.width > 0 {
                 controlViewframe.origin.y = min(controlViewframe.origin.y, videoFrame.maxY - controlViewframe.size.height - self.controlMargin)
             }
@@ -295,20 +296,22 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     // MARK: - Actions
 
-    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+    @objc
+    func handleTap(_ gesture: UITapGestureRecognizer) {
         if imageScrollView.zoomScale == imageScrollView.minimumZoomScale {
             showAccessoryView(!accessoryViewsVisible())
         }
     }
 
-    @objc func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+    @objc
+    func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
         var frame = CGRect.zero
         var scale = imageScrollView.maximumZoomScale
 
         if imageScrollView.zoomScale == imageScrollView.minimumZoomScale {
             if let contentView = imageScrollView.delegate?.viewForZooming?(in: imageScrollView) {
                 let location = gesture.location(in: contentView)
-                frame = CGRect(x: location.x * imageScrollView.maximumZoomScale - imageScrollView.bounds.size.width/2, y: location.y*imageScrollView.maximumZoomScale - imageScrollView.bounds.size.height/2, width: imageScrollView.bounds.size.width, height: imageScrollView.bounds.size.height)
+                frame = CGRect(x: location.x * imageScrollView.maximumZoomScale - imageScrollView.bounds.size.width / 2, y: location.y * imageScrollView.maximumZoomScale - imageScrollView.bounds.size.height / 2, width: imageScrollView.bounds.size.width, height: imageScrollView.bounds.size.height)
             }
         } else {
             scale = imageScrollView.minimumZoomScale

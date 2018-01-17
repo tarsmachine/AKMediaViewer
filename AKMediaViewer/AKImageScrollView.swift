@@ -101,7 +101,7 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         var maxScale: CGFloat = 1.0
 
         // calculate min/max zoomscale
-        let xScale = boundsSize.width  / imageSize.width    // the scale needed to perfectly fit the image width-wise
+        let xScale = boundsSize.width / imageSize.width    // the scale needed to perfectly fit the image width-wise
         let yScale = boundsSize.height / imageSize.height   // the scale needed to perfectly fit the image height-wise
         let minScale = min(xScale, yScale)                   // use minimum of these to allow the image to become fully visible
 
