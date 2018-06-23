@@ -427,23 +427,23 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 if mediaView.layer.cornerRadius > 0 {
                     self.animateCornerRadiusOfView(imageView, withDuration: duration, from: Float(mediaView.layer.cornerRadius), to: 0.0)
                 }
-            }, completion: { (_) -> Void in
+            }, completion: { _ -> Void in
                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                animations: { () -> Void in
                         var frame: CGRect = untransformedFinalImageFrame
                         frame = (self.elasticAnimation ? self.rectInsetsForRect(frame, withRatio: kAnimateElasticSizeRatio * kAnimateElasticSecondMoveSizeRatio) : frame)
                         imageView.frame = frame
-                    }, completion: { (_) -> Void in
+                    }, completion: { _ -> Void in
                         UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                        animations: { () -> Void in
                                 var frame: CGRect = untransformedFinalImageFrame
                                 frame = (self.elasticAnimation ? self.rectInsetsForRect(frame, withRatio: -kAnimateElasticSizeRatio * kAnimateElasticThirdMoveSizeRatio) : frame)
                                 imageView.frame = frame
-                            }, completion: { (_) -> Void in
+                            }, completion: { _ -> Void in
                                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                                animations: { () -> Void in
                                         imageView.frame = untransformedFinalImageFrame
-                                    }, completion: { (_) -> Void in
+                                    }, completion: { _ -> Void in
                                         self.focusViewController!.focusDidEndWithZoomEnabled(self.zoomEnabled)
                                         self.isZooming = false
                                         self.delegate?.mediaViewerManagerDidAppear?(self)
@@ -522,19 +522,19 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
                 contentView.transform = self.mediaView.transform
                 self.updateBoundsDuringAnimationWithElasticRatio(kAnimateElasticSizeRatio)
-            }, completion: { (_) -> Void in
+            }, completion: { _ -> Void in
                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                animations: { () -> Void in
                         self.updateBoundsDuringAnimationWithElasticRatio(-kAnimateElasticSizeRatio * kAnimateElasticSecondMoveSizeRatio)
-                    }, completion: { (_) -> Void in
+                    }, completion: { _ -> Void in
                         UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                        animations: { () -> Void in
                                 self.updateBoundsDuringAnimationWithElasticRatio(kAnimateElasticSizeRatio * kAnimateElasticThirdMoveSizeRatio)
-                            }, completion: { (_) -> Void in
+                            }, completion: { _ -> Void in
                                 UIView.animate(withDuration: self.elasticAnimation ? self.animationDuration * (kAnimateElasticDurationRatio / 3.0) : 0.0,
                                                animations: { () -> Void in
                                         self.updateBoundsDuringAnimationWithElasticRatio(0.0)
-                                    }, completion: { (_) -> Void in
+                                    }, completion: { _ -> Void in
                                         self.mediaView.isHidden = false
                                         self.focusViewController!.view .removeFromSuperview()
                                         self.focusViewController!.removeFromParentViewController()
@@ -608,13 +608,13 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                     self.focusViewController!.contentView.transform = .identity
 
                                     contentView.center = CGPoint(x: self.focusViewController!.view.center.x, y: self.focusViewController!.view.center.y + offset)
-                                    }, completion: { (_) -> Void in
+                                    }, completion: { _ -> Void in
                                         UIView.animate(withDuration: 0.6 * duration,
                                                        animations: {
                                                 contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
                                                 contentView.transform = self.mediaView.transform
                                                 self.updateBoundsDuringAnimationWithElasticRatio(0)
-                                            }, completion: { (_) -> Void in
+                                            }, completion: { _ -> Void in
                                                 self.mediaView.isHidden = false
                                                 self.focusViewController!.view.removeFromSuperview()
                                                 self.focusViewController!.removeFromParentViewController()
