@@ -361,7 +361,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
         self.mediaView = mediaView
         parentViewController = (delegate?.parentViewControllerForMediaViewerManager(self))!
-        parentViewController.addChildViewController(focusViewController)
+        parentViewController.addChild(focusViewController)
         parentViewController.view.addSubview(focusViewController.view)
 
         focusViewController.view.frame = parentViewController.view.bounds
@@ -381,7 +381,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             finalImageFrame = parentViewController.view.bounds
         }
 
-        if imageView.contentMode == UIViewContentMode.scaleAspectFill {
+        if imageView.contentMode == UIView.ContentMode.scaleAspectFill {
             let size: CGSize = sizeThatFitsInSize(finalImageFrame!.size, initialSize: imageView.image!.size)
             finalImageFrame!.size = size
             finalImageFrame!.origin.x = (focusViewController.view.bounds.size.width - size.width) / 2
@@ -455,7 +455,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     func animateCornerRadiusOfView(_ view: UIView, withDuration duration: TimeInterval, from initialValue: Float, to finalValue: Float) {
         let animation: CABasicAnimation = CABasicAnimation(keyPath: "cornerRadius")
-        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
+        animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.linear)
         animation.fromValue = initialValue
         animation.toValue = finalValue
         animation.duration = duration
@@ -537,7 +537,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                     }, completion: { _ -> Void in
                                         self.mediaView.isHidden = false
                                         self.focusViewController!.view .removeFromSuperview()
-                                        self.focusViewController!.removeFromParentViewController()
+                                        self.focusViewController!.removeFromParent()
                                         self.focusViewController = nil
                                         self.delegate?.mediaViewerManagerDidDisappear?(self)
                                 })
@@ -550,7 +550,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     @objc
     func handlePinchFocusGesture(_ gesture: UIPinchGestureRecognizer) {
-        if gesture.state == UIGestureRecognizerState.began && !isZooming && gesture.scale > 1 {
+        if gesture.state == UIGestureRecognizer.State.began && !isZooming && gesture.scale > 1 {
             startFocusingView(gesture.view!)
         }
     }
@@ -591,7 +591,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let duration = self.animationDuration
 
         focusViewController!.defocusWillStart()
-        let offset = (gesture.direction == UISwipeGestureRecognizerDirection.up ? -kSwipeOffset : kSwipeOffset)
+        let offset = (gesture.direction == UISwipeGestureRecognizer.Direction.up ? -kSwipeOffset : kSwipeOffset)
         contentView = focusViewController!.mainImageView
 
         UIView.animate(withDuration: duration) {
@@ -617,7 +617,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                             }, completion: { _ -> Void in
                                                 self.mediaView.isHidden = false
                                                 self.focusViewController!.view.removeFromSuperview()
-                                                self.focusViewController!.removeFromParentViewController()
+                                                self.focusViewController!.removeFromParent()
                                                 self.focusViewController = nil
                                                 self.delegate?.mediaViewerManagerDidDisappear?(self)
                                                 })
@@ -628,7 +628,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // Set minimal customization to default "Done" button. (Text and Color)
     public func setDefaultDoneButtonText(_ text: String, withColor color: UIColor) {
-        (topAccessoryController as? AKMediaFocusBasicToolbarController)?.doneButton.setTitle(text, for: UIControlState())
-        (topAccessoryController as? AKMediaFocusBasicToolbarController)?.doneButton.setTitleColor(color, for: UIControlState())
+        (topAccessoryController as? AKMediaFocusBasicToolbarController)?.doneButton.setTitle(text, for: UIControl.State())
+        (topAccessoryController as? AKMediaFocusBasicToolbarController)?.doneButton.setTitleColor(color, for: UIControl.State())
     }
 }

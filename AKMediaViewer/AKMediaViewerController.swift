@@ -138,7 +138,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
         // install loading spinner for remote files
         if !url.isFileURL {
-            self.activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+            self.activityIndicator = UIActivityIndicatorView(style: .whiteLarge)
             self.activityIndicator?.frame = UIScreen.main.bounds
             self.activityIndicator?.hidesWhenStopped = true
             view.addSubview(self.activityIndicator!)
@@ -240,7 +240,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             return
         }
 
-        UIView.animate(withDuration: 0.5, delay: 0, options: [UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.allowUserInteraction], animations: { () -> Void in
+        UIView.animate(withDuration: 0.5, delay: 0, options: [UIView.AnimationOptions.beginFromCurrentState, UIView.AnimationOptions.allowUserInteraction], animations: { () -> Void in
             self.accessoryView.alpha = (visible ? 1.0 : 0.0)
         }, completion: nil)
     }

@@ -23,7 +23,7 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
         bouncesZoom = true
-        decelerationRate = UIScrollViewDecelerationRateFast
+        decelerationRate = UIScrollView.DecelerationRate.fast
     }
 
     required public init?(coder aDecoder: NSCoder) {
