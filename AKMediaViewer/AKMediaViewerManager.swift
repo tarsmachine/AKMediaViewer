@@ -133,11 +133,11 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     // Install focusing gesture on the specified view.
     public func installOnView(_ view: UIView) {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleFocusGesture(_:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleFocusGesture(_:)))
         view.addGestureRecognizer(tapGesture)
         view.isUserInteractionEnabled = true
 
-        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handlePinchFocusGesture(_:)))
+        let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchFocusGesture(_:)))
         pinchRecognizer.delegate = self
         view.addGestureRecognizer(pinchRecognizer)
 
@@ -179,13 +179,15 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     // MARK: - Utilities
 
     // Taken from https://github.com/rs/SDWebImage/blob/master/SDWebImage/SDWebImageDecoder.m
-    func decodedImageWithImage(_ image: UIImage) -> UIImage {
+    func decodedImageWithImage(_ image: UIImage) -> UIImage? {
         // do not decode animated images
         if image.images != nil {
             return image
         }
 
-        let imageRef: CGImage = image.cgImage!
+        guard let imageRef = image.cgImage else {
+            return nil
+        }
 
         let alpha: CGImageAlphaInfo = imageRef.alphaInfo
         let anyAlpha: Bool = (alpha == CGImageAlphaInfo.first ||
@@ -198,8 +200,10 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
 
         // current
-        let imageColorSpaceModel: CGColorSpaceModel = imageRef.colorSpace!.model
-        var colorspaceRef: CGColorSpace = imageRef.colorSpace!
+        guard var colorSpaceRef = imageRef.colorSpace else {
+            return nil
+        }
+        let imageColorSpaceModel = colorSpaceRef.model
 
         let unsupportedColorSpace: Bool = (imageColorSpaceModel == CGColorSpaceModel.unknown ||
                                             imageColorSpaceModel == CGColorSpaceModel.monochrome ||
@@ -207,7 +211,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                             imageColorSpaceModel == CGColorSpaceModel.indexed)
 
         if unsupportedColorSpace {
-            colorspaceRef = CGColorSpaceCreateDeviceRGB()
+            colorSpaceRef = CGColorSpaceCreateDeviceRGB()
         }
 
         let width: size_t = imageRef.width
@@ -224,7 +228,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                 height: height,
                                 bitsPerComponent: bitsPerComponent,
                                 bytesPerRow: bytesPerRow,
-                                space: colorspaceRef,
+                                space: colorSpaceRef,
                                 bitmapInfo: CGBitmapInfo().rawValue | CGImageAlphaInfo.noneSkipLast.rawValue)!
 
         // Draw the image into the context and retrieve the new bitmap image without alpha
@@ -264,7 +268,6 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let viewController: AKMediaViewerController
         let image: UIImage?
         var imageView: UIImageView?
-        let url: URL?
 
         imageView = delegate?.mediaViewerManager?(self, imageViewForView: mediaView)
 
@@ -272,14 +275,12 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             imageView = mediaView as? UIImageView
         }
 
-        image = imageView!.image
+        image = imageView?.image
         if (imageView == nil) || (image == nil) {
             return nil
         }
 
-        url = delegate?.mediaViewerManager(self, mediaURLForView: mediaView)
-
-        guard url != nil else {
+        guard let url = delegate?.mediaViewerManager(self, mediaURLForView: mediaView) else {
             print("Warning: url is nil")
             return nil
         }
@@ -299,10 +300,10 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         }
 
         if isVideoURL(url) {
-            viewController.showPlayerWithURL(url!)
+            viewController.showPlayerWithURL(url)
         } else {
             DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: { () -> Void in
-                self.loadImageFromURL(url!, onImageView: viewController.mainImageView)
+                self.loadImageFromURL(url, onImageView: viewController.mainImageView)
                 DispatchQueue.main.async(execute: { () -> Void in
                     viewController.mainImageView.isHidden = false
                 })
@@ -315,14 +316,13 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let data: Data
 
         do {
-            try data = Data(contentsOf: url, options: Data.ReadingOptions.dataReadingMapped)
+            try data = Data(contentsOf: url, options: .dataReadingMapped)
 
-            var image: UIImage = UIImage(data: data)!
-            image = decodedImageWithImage(image)
-
-            DispatchQueue.main.async(execute: { () -> Void in
-                imageView.image = image
-            })
+            if let image = UIImage(data: data), let decImage = decodedImageWithImage(image) {
+                DispatchQueue.main.async(execute: { () -> Void in
+                    imageView.image = decImage
+                })
+            }
         } catch {
             print("Warning: Unable to load image at %@. %@", url, error)
         }
@@ -381,14 +381,14 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             finalImageFrame = parentViewController.view.bounds
         }
 
-        if imageView.contentMode == UIView.ContentMode.scaleAspectFill {
+        if imageView.contentMode == .scaleAspectFill {
             let size: CGSize = sizeThatFitsInSize(finalImageFrame!.size, initialSize: imageView.image!.size)
             finalImageFrame!.size = size
             finalImageFrame!.origin.x = (focusViewController.view.bounds.size.width - size.width) / 2
             finalImageFrame!.origin.y = (focusViewController.view.bounds.size.height - size.height) / 2
         }
 
-        UIView .animate(withDuration: self.animationDuration) { () -> Void in
+        UIView.animate(withDuration: self.animationDuration) { () -> Void in
             focusViewController.view.backgroundColor = self.backgroundColor
             focusViewController.beginAppearanceTransition(true, animated: true)
         }
@@ -410,7 +410,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 // Thus to recreate the right animation, the image frame is set back to its inital frame then to its final frame.
                 // This very last frame operation recreates the right frame animation.
                 initialTransform = imageView.transform
-                imageView.transform = CGAffineTransform.identity
+                imageView.transform = .identity
                 initialFrame = imageView.frame
                 imageView.frame = frame
 
@@ -421,7 +421,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                 imageView.frame = initialFrame
                 imageView.transform = initialTransform
                 imageView.layer .removeAllAnimations()
-                imageView.transform = CGAffineTransform.identity
+                imageView.transform = .identity
                 imageView.frame = frame
 
                 if mediaView.layer.cornerRadius > 0 {
@@ -455,7 +455,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     func animateCornerRadiusOfView(_ view: UIView, withDuration duration: TimeInterval, from initialValue: Float, to finalValue: Float) {
         let animation: CABasicAnimation = CABasicAnimation(keyPath: "cornerRadius")
-        animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.linear)
+        animation.timingFunction = CAMediaTimingFunction(name: .linear)
         animation.fromValue = initialValue
         animation.toValue = finalValue
         animation.duration = duration
@@ -479,7 +479,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     }
 
     func updateBoundsDuringAnimationWithElasticRatio(_ ratio: CGFloat) {
-        var initialFrame: CGRect? = CGRect.zero
+        var initialFrame: CGRect? = .zero
         var frame: CGRect = mediaView.bounds
 
         initialFrame = focusViewController!.playerView?.frame
@@ -502,7 +502,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         contentView = self.focusViewController!.mainImageView
 
         UIView.animate(withDuration: self.animationDuration) { () -> Void in
-            self.focusViewController!.view.backgroundColor = UIColor.clear
+            self.focusViewController!.view.backgroundColor = .clear
         }
 
         UIView.animate(withDuration: self.animationDuration / 2) { () -> Void in
@@ -518,7 +518,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: duration,
                        animations: { () -> Void in
                 self.delegate?.mediaViewerManagerWillDisappear?(self)
-                self.focusViewController!.contentView.transform = CGAffineTransform.identity
+                self.focusViewController!.contentView.transform = .identity
                 contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
                 contentView.transform = self.mediaView.transform
                 self.updateBoundsDuringAnimationWithElasticRatio(kAnimateElasticSizeRatio)
@@ -550,7 +550,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
     @objc
     func handlePinchFocusGesture(_ gesture: UIPinchGestureRecognizer) {
-        if gesture.state == UIGestureRecognizer.State.began && !isZooming && gesture.scale > 1 {
+        if gesture.state == .began && !isZooming && gesture.scale > 1 {
             startFocusingView(gesture.view!)
         }
     }
@@ -575,11 +575,11 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     // MARK: - Dismiss on swipe
     func installSwipeGestureOnFocusView() {
 
-        var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
+        var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleDefocusBySwipeGesture(_:)))
         swipeGesture.direction = .up
         focusViewController?.view.addGestureRecognizer(swipeGesture)
 
-        swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusBySwipeGesture(_:)))
+        swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleDefocusBySwipeGesture(_:)))
         swipeGesture.direction = .down
         focusViewController?.view.addGestureRecognizer(swipeGesture)
         focusViewController?.view.isUserInteractionEnabled = true
