@@ -151,7 +151,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         // We need the view to be loaded.
         if focusViewController.view != nil {
             if isDefocusingWithTap {
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerManager.handleDefocusGesture(_:)))
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDefocusGesture(_:)))
                 tapGesture.require(toFail: focusViewController.doubleTapGesture)
                 focusViewController.view.addGestureRecognizer(tapGesture)
             } else {
@@ -164,7 +164,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         if topAccessoryController == nil {
             let defaultController = AKMediaFocusBasicToolbarController(nibName: "AKMediaFocusBasicToolbar", bundle: Bundle.AKMediaFrameworkBundle())
             defaultController.view.backgroundColor = .clear
-            defaultController.doneButton.addTarget(self, action: #selector(AKMediaViewerManager.endFocusing), for: .touchUpInside)
+            defaultController.doneButton.addTarget(self, action: #selector(endFocusing), for: .touchUpInside)
             topAccessoryController = defaultController
         }
 
@@ -463,29 +463,29 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         view.layer.add(animation, forKey: "cornerRadius")
     }
 
-    func updateAnimatedView(_ view: UIView?, fromFrame initialFrame: CGRect?, toFrame finalFrame: CGRect) {
+    func updateAnimatedView(_ view: UIView, fromFrame initialFrame: CGRect, toFrame finalFrame: CGRect) {
         // On iOS8 previous animations are not replaced when a new one is defined with the same key.
         // Instead the new animation is added a number suffix on its key.
         // To prevent from having additive animations, previous animations are removed.
         // Note: We don't want to remove all animations as there might be some opacity animation that must remain.
-        view?.layer.removeAnimation(forKey: "bounds.size")
-        view?.layer.removeAnimation(forKey: "bounds.origin")
-        view?.layer.removeAnimation(forKey: "position")
-        view?.frame = initialFrame!
-        view?.layer.removeAnimation(forKey: "bounds.size")
-        view?.layer.removeAnimation(forKey: "bounds.origin")
-        view?.layer.removeAnimation(forKey: "position")
-        view?.frame = finalFrame
+        view.layer.removeAnimation(forKey: "bounds.size")
+        view.layer.removeAnimation(forKey: "bounds.origin")
+        view.layer.removeAnimation(forKey: "position")
+        view.frame = initialFrame
+        view.layer.removeAnimation(forKey: "bounds.size")
+        view.layer.removeAnimation(forKey: "bounds.origin")
+        view.layer.removeAnimation(forKey: "position")
+        view.frame = finalFrame
     }
 
     func updateBoundsDuringAnimationWithElasticRatio(_ ratio: CGFloat) {
-        var initialFrame: CGRect? = .zero
-        var frame: CGRect = mediaView.bounds
-
-        initialFrame = focusViewController!.playerView?.frame
-        frame = (elasticAnimation ? rectInsetsForRect(frame, withRatio: ratio) : frame)
-        focusViewController!.mainImageView.bounds = frame
-        updateAnimatedView(focusViewController!.playerView, fromFrame: initialFrame, toFrame: frame)
+        if let playerView = focusViewController?.playerView {
+            let initialFrame: CGRect = playerView.frame
+            var frame: CGRect = mediaView.bounds
+            frame = elasticAnimation ? rectInsetsForRect(frame, withRatio: ratio) : frame
+            focusViewController!.mainImageView.bounds = frame
+            updateAnimatedView(playerView, fromFrame: initialFrame, toFrame: frame)
+        }
     }
 
     // Start the close animation on the current focused view.
