@@ -1,14 +1,14 @@
 # reference: http://www.objc.io/issue-6/travis-ci.html
 
 language: objective-c
-osx_image: xcode10
+osx_image: xcode11.3
 podfile: AKMediaViewerExample/Podfile
 
 rvm:
-  - 2.3.1
+  - 2.4.3
 
 before_install: 
-  - gem install cocoapods -v '1.5.3'
+  - gem install cocoapods -v '1.8.4'
 
 script:
 - xcodebuild -workspace AKMediaViewerExample/AKMediaViewerExample.xcworkspace -scheme AKMediaViewerExample -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
