@@ -13,7 +13,7 @@ Pod::Spec.new do |spec|
   spec.swift_version          = '4.2'
   spec.source             		= { :git => "https://github.com/dogo/AKMediaViewer.git", :tag => spec.version.to_s }
   spec.source_files       		= "AKMediaViewer/*.{h,swift}"
-  spec.resource_bundles       = { 'AKMediaViewer' => ['AKMediaViewer/xib/*.xib', 'AKMediaViewer/Resources/*.png'] }
+  spec.resource_bundles       = { 'AKMediaViewer' => ['AKMediaViewer/xib/*.xib', 'AKMediaViewer/Resources/*.xcassets'] }
   spec.requires_arc       		= true
   spec.dependency 'ASBPlayerScrubbing', '~> 0.1'  
 end

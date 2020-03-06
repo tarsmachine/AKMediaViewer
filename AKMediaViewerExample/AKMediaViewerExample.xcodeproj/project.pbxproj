@@ -159,7 +159,6 @@
 				DD3ABB0A1D89E48700E7332F /* Frameworks */,
 				DD3ABB0B1D89E48700E7332F /* Resources */,
 				F0E194C366FC453EFBB3F567 /* [CP] Embed Pods Frameworks */,
-				4CAE0EF254ED839AF533FCCF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -177,7 +176,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 1000;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "AnyKey Entertainment";
 				TargetAttributes = {
 					DD3ABB0C1D89E48700E7332F = {
@@ -189,7 +188,7 @@
 			};
 			buildConfigurationList = DD3ABB081D89E48700E7332F /* Build configuration list for PBXProject "AKMediaViewerExample" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -227,28 +226,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4CAE0EF254ED839AF533FCCF /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AKMediaViewerExample/Pods-AKMediaViewerExample-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		F0E194C366FC453EFBB3F567 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-AKMediaViewerExample/Pods-AKMediaViewerExample-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-AKMediaViewerExample/Pods-AKMediaViewerExample-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AKMediaViewer/AKMediaViewer.framework",
 				"${BUILT_PRODUCTS_DIR}/ASBPlayerScrubbing/ASBPlayerScrubbing.framework",
 			);
@@ -259,7 +243,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AKMediaViewerExample/Pods-AKMediaViewerExample-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AKMediaViewerExample/Pods-AKMediaViewerExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD98690657E33A76B95CE293 /* [CP] Check Pods Manifest.lock */ = {
@@ -319,6 +303,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -378,6 +363,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
