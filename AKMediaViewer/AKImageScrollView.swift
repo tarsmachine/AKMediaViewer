@@ -11,7 +11,7 @@ import UIKit
 
 public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
 
-    public var zoomImageView: UIImageView?
+    public var zoomImageView: UIImageView = UIImageView()
 
     var imageSize: CGSize = .zero
     var pointToCenterAfterResize: CGPoint = .zero
@@ -23,9 +23,12 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
         bouncesZoom = true
-        decelerationRate = UIScrollView.DecelerationRate.fast
+        zoomScale = 1.0
+        decelerationRate = .fast
+        addSubview(zoomImageView)
     }
 
+    @available(*, unavailable)
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -34,24 +37,23 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
         super.layoutSubviews()
 
         // center the zoom view as it becomes smaller than the size of the screen
-        if var frameToCenter = self.zoomImageView?.frame {
-            let boundsSize = self.bounds.size
+        var frameToCenter = self.zoomImageView.frame
+        let boundsSize = self.bounds.size
 
-            // center horizontally
-            if frameToCenter.size.width < boundsSize.width {
-                frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2
-            } else {
-                frameToCenter.origin.x = 0
-            }
-
-            // center vertically
-            if frameToCenter.size.height < boundsSize.height {
-                frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2
-            } else {
-                frameToCenter.origin.y = 0
-            }
-            self.zoomImageView?.frame = frameToCenter
+        // center horizontally
+        if frameToCenter.size.width < boundsSize.width {
+            frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2
+        } else {
+            frameToCenter.origin.x = 0
         }
+
+        // center vertically
+        if frameToCenter.size.height < boundsSize.height {
+            frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2
+        } else {
+            frameToCenter.origin.y = 0
+        }
+        self.zoomImageView.frame = frameToCenter
     }
 
     override public var frame: CGRect {
@@ -75,17 +77,11 @@ public class AKImageScrollView: UIScrollView, UIScrollViewDelegate {
 
     // MARK: - Configure scrollView to display new image
 
-    public func displayImage(_ image: UIImage) {
-        if zoomImageView == nil {
-            self.zoomScale = 1.0
-
-            // make a new UIImageView for the new image
-            zoomImageView = UIImageView(image: image)
-            self.addSubview(zoomImageView!)
-        } else {
-            self.zoomImageView?.image = image
+    public func displayImage(_ image: UIImage?) {
+        self.zoomImageView.image = image
+        if let imageSize = image?.size {
+            configureForImageSize(imageSize)
         }
-        configureForImageSize(image.size)
     }
 
     func configureForImageSize(_ imageSize: CGSize) {

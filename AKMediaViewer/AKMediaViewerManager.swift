@@ -108,7 +108,6 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     var videoBehavior: AKVideoBehavior
 
     override public init() {
-
         animationDuration = kAnimationDuration
         backgroundColor = UIColor(white: 0.0, alpha: 0.8)
         defocusOnVerticalSwipe = true
@@ -302,12 +301,12 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         if isVideoURL(url) {
             viewController.showPlayerWithURL(url)
         } else {
-            DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async(execute: { () -> Void in
+            DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async {
                 self.loadImageFromURL(url, onImageView: viewController.mainImageView)
-                DispatchQueue.main.async(execute: { () -> Void in
+                DispatchQueue.main.async {
                     viewController.mainImageView.isHidden = false
-                })
-            })
+                }
+            }
         }
         return viewController
     }
@@ -319,9 +318,9 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             try data = Data(contentsOf: url, options: .dataReadingMapped)
 
             if let image = UIImage(data: data), let decImage = decodedImageWithImage(image) {
-                DispatchQueue.main.async(execute: { () -> Void in
+                DispatchQueue.main.async {
                     imageView.image = decImage
-                })
+                }
             }
         } catch {
             print("Warning: Unable to load image at %@. %@", url, error)
@@ -340,10 +339,6 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
     // Start the focus animation on the specified view. The focusing gesture must have been installed on this view.
     public func startFocusingView(_ mediaView: UIView) {
 
-        let parentViewController: UIViewController
-        let center: CGPoint
-        let imageView: UIImageView
-        var finalImageFrame: CGRect?
         var untransformedFinalImageFrame: CGRect = .zero
 
         guard let focusViewController = focusViewControllerForView(mediaView) else {
@@ -360,15 +355,15 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         delegate?.mediaViewerManagerWillAppear?(self)
 
         self.mediaView = mediaView
-        parentViewController = (delegate?.parentViewControllerForMediaViewerManager(self))!
+        let parentViewController: UIViewController = (delegate?.parentViewControllerForMediaViewerManager(self))!
         parentViewController.addChild(focusViewController)
         parentViewController.view.addSubview(focusViewController.view)
 
         focusViewController.view.frame = parentViewController.view.bounds
         mediaView.isHidden = true
 
-        imageView = focusViewController.mainImageView
-        center = (imageView.superview?.convert(mediaView.center, from: mediaView.superview))!
+        let imageView: UIImageView = focusViewController.mainImageView
+        let center: CGPoint = (imageView.superview?.convert(mediaView.center, from: mediaView.superview))!
         imageView.center = center
         imageView.transform = mediaView.transform
         imageView.bounds = mediaView.bounds
@@ -376,19 +371,16 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
 
         self.isZooming = true
 
-        finalImageFrame = self.delegate?.mediaViewerManager?(self, finalFrameForView: mediaView)
-        if finalImageFrame == nil {
-            finalImageFrame = parentViewController.view.bounds
-        }
+        var finalImageFrame = self.delegate?.mediaViewerManager?(self, finalFrameForView: mediaView) ?? parentViewController.view.bounds
 
         if imageView.contentMode == .scaleAspectFill {
-            let size: CGSize = sizeThatFitsInSize(finalImageFrame!.size, initialSize: imageView.image!.size)
-            finalImageFrame!.size = size
-            finalImageFrame!.origin.x = (focusViewController.view.bounds.size.width - size.width) / 2
-            finalImageFrame!.origin.y = (focusViewController.view.bounds.size.height - size.height) / 2
+            let size: CGSize = sizeThatFitsInSize(finalImageFrame.size, initialSize: imageView.image!.size)
+            finalImageFrame.size = size
+            finalImageFrame.origin.x = (focusViewController.view.bounds.size.width - size.width) / 2
+            finalImageFrame.origin.y = (focusViewController.view.bounds.size.height - size.height) / 2
         }
 
-        UIView.animate(withDuration: self.animationDuration) { () -> Void in
+        UIView.animate(withDuration: self.animationDuration) {
             focusViewController.view.backgroundColor = self.backgroundColor
             focusViewController.beginAppearanceTransition(true, animated: true)
         }
@@ -396,12 +388,12 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let duration = (elasticAnimation ? animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
 
         UIView.animate(withDuration: self.animationDuration,
-                       animations: { () -> Void in
+                       animations: {
                 var frame: CGRect
                 let initialFrame: CGRect
                 let initialTransform: CGAffineTransform
 
-                frame = finalImageFrame!
+                frame = finalImageFrame
 
                 // Trick to keep the right animation on the image frame.
                 // The image frame shoud animate from its current frame to a final frame.
@@ -444,7 +436,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                                animations: { () -> Void in
                                         imageView.frame = untransformedFinalImageFrame
                                     }, completion: { _ -> Void in
-                                        self.focusViewController!.focusDidEndWithZoomEnabled(self.zoomEnabled)
+                                        self.focusViewController?.focusDidEndWithZoomEnabled(self.zoomEnabled)
                                         self.isZooming = false
                                         self.delegate?.mediaViewerManagerDidAppear?(self)
                                 })
@@ -483,7 +475,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             let initialFrame: CGRect = playerView.frame
             var frame: CGRect = mediaView.bounds
             frame = elasticAnimation ? rectInsetsForRect(frame, withRatio: ratio) : frame
-            focusViewController!.mainImageView.bounds = frame
+            focusViewController?.mainImageView.bounds = frame
             updateAnimatedView(playerView, fromFrame: initialFrame, toFrame: frame)
         }
     }
@@ -497,16 +489,16 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
             return
         }
 
-        focusViewController!.defocusWillStart()
+        focusViewController?.defocusWillStart()
 
         contentView = self.focusViewController!.mainImageView
 
-        UIView.animate(withDuration: self.animationDuration) { () -> Void in
-            self.focusViewController!.view.backgroundColor = .clear
+        UIView.animate(withDuration: self.animationDuration) {
+            self.focusViewController?.view.backgroundColor = .clear
         }
 
-        UIView.animate(withDuration: self.animationDuration / 2) { () -> Void in
-            self.focusViewController!.beginAppearanceTransition(false, animated: true)
+        UIView.animate(withDuration: self.animationDuration / 2) {
+            self.focusViewController?.beginAppearanceTransition(false, animated: true)
         }
 
         let duration = (self.elasticAnimation ? self.animationDuration * (1.0 - kAnimateElasticDurationRatio) : self.animationDuration)
@@ -518,7 +510,7 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: duration,
                        animations: { () -> Void in
                 self.delegate?.mediaViewerManagerWillDisappear?(self)
-                self.focusViewController!.contentView.transform = .identity
+                self.focusViewController?.contentView.transform = .identity
                 contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
                 contentView.transform = self.mediaView.transform
                 self.updateBoundsDuringAnimationWithElasticRatio(kAnimateElasticSizeRatio)
@@ -536,8 +528,8 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
                                         self.updateBoundsDuringAnimationWithElasticRatio(0.0)
                                     }, completion: { _ -> Void in
                                         self.mediaView.isHidden = false
-                                        self.focusViewController!.view .removeFromSuperview()
-                                        self.focusViewController!.removeFromParent()
+                                        self.focusViewController?.view .removeFromSuperview()
+                                        self.focusViewController?.removeFromParent()
                                         self.focusViewController = nil
                                         self.delegate?.mediaViewerManagerDidDisappear?(self)
                                 })
@@ -590,38 +582,36 @@ public class AKMediaViewerManager: NSObject, UIGestureRecognizerDelegate {
         let contentView: UIView
         let duration = self.animationDuration
 
-        focusViewController!.defocusWillStart()
+        focusViewController?.defocusWillStart()
         let offset = (gesture.direction == UISwipeGestureRecognizer.Direction.up ? -kSwipeOffset : kSwipeOffset)
         contentView = focusViewController!.mainImageView
 
         UIView.animate(withDuration: duration) {
-            self.focusViewController!.view.backgroundColor = UIColor.clear
+            self.focusViewController?.view.backgroundColor = .clear
         }
 
         UIView.animate(withDuration: duration / 2) {
-            self.focusViewController!.beginAppearanceTransition(false, animated: true)
+            self.focusViewController?.beginAppearanceTransition(false, animated: true)
         }
 
-        UIView.animate(withDuration: 0.4 * duration,
-                       animations: {
-                                    self.delegate?.mediaViewerManagerWillDisappear?(self)
-                                    self.focusViewController!.contentView.transform = .identity
-
-                                    contentView.center = CGPoint(x: self.focusViewController!.view.center.x, y: self.focusViewController!.view.center.y + offset)
-                                    }, completion: { _ -> Void in
-                                        UIView.animate(withDuration: 0.6 * duration,
-                                                       animations: {
-                                                contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
-                                                contentView.transform = self.mediaView.transform
-                                                self.updateBoundsDuringAnimationWithElasticRatio(0)
-                                            }, completion: { _ -> Void in
-                                                self.mediaView.isHidden = false
-                                                self.focusViewController!.view.removeFromSuperview()
-                                                self.focusViewController!.removeFromParent()
-                                                self.focusViewController = nil
-                                                self.delegate?.mediaViewerManagerDidDisappear?(self)
-                                                })
-                                        })
+        UIView.animate(withDuration: 0.4 * duration, animations: {
+                        self.delegate?.mediaViewerManagerWillDisappear?(self)
+                        self.focusViewController?.contentView.transform = .identity
+                        contentView.center = CGPoint(x: self.focusViewController!.view.center.x,
+                                                     y: self.focusViewController!.view.center.y + offset)
+        }, completion: { _ -> Void in
+            UIView.animate(withDuration: 0.6 * duration, animations: {
+                contentView.center = contentView.superview!.convert(self.mediaView.center, from: self.mediaView.superview)
+                contentView.transform = self.mediaView.transform
+                self.updateBoundsDuringAnimationWithElasticRatio(0)
+            }, completion: { _ -> Void in
+                self.mediaView.isHidden = false
+                self.focusViewController?.view.removeFromSuperview()
+                self.focusViewController?.removeFromParent()
+                self.focusViewController = nil
+                self.delegate?.mediaViewerManagerDidDisappear?(self)
+            })
+        })
     }
 
     // MARK: - Customization

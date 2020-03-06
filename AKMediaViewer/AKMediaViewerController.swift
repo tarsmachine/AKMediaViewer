@@ -64,16 +64,17 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 
-        doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerController.handleDoubleTap(_:)))
+        doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTapGesture.numberOfTapsRequired = 2
         controlMargin = 5.0
 
-        tapGesture = UITapGestureRecognizer(target: self, action: #selector(AKMediaViewerController.handleTap(_:)))
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tapGesture.require(toFail: doubleTapGesture)
 
         view.addGestureRecognizer(tapGesture)
     }
 
+    @available(*, unavailable)
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -204,30 +205,30 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
         scrollView.delegate = self
         imageScrollView = scrollView
         contentView.insertSubview(scrollView, at: 0)
-        scrollView.displayImage(mainImageView.image!)
+        scrollView.displayImage(mainImageView.image)
         self.mainImageView.isHidden = true
 
         imageScrollView.addGestureRecognizer(doubleTapGesture)
     }
 
     func uninstallZoomView() {
-        if let zoomImageViewFrame = imageScrollView.zoomImageView?.frame {
-            let frame = contentView.convert(zoomImageViewFrame, from: imageScrollView)
-            imageScrollView.isHidden = true
-            mainImageView.isHidden = false
-            mainImageView.frame = frame
-        }
+        let frame = contentView.convert(imageScrollView.zoomImageView.frame, from: imageScrollView)
+        imageScrollView.isHidden = true
+        mainImageView.isHidden = false
+        mainImageView.frame = frame
     }
 
     func isAccessoryViewPinned() -> Bool {
-        return (accessoryView.superview == view)
+        return accessoryView.superview == view
     }
 
     func pinView(_ view: UIView) {
-        let frame = self.view.convert(view.frame, from: view.superview)
-        view.transform = view.superview!.transform
-        self.view.addSubview(view)
-        view.frame = frame
+        if let superview = view.superview {
+            let frame = self.view.convert(view.frame, from: superview)
+            view.transform = superview.transform
+            self.view.addSubview(view)
+            view.frame = frame
+        }
     }
 
     func pinAccessoryView() {
@@ -240,7 +241,7 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
             return
         }
 
-        UIView.animate(withDuration: 0.5, delay: 0, options: [UIView.AnimationOptions.beginFromCurrentState, UIView.AnimationOptions.allowUserInteraction], animations: { () -> Void in
+        UIView.animate(withDuration: 0.5, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction], animations: {
             self.accessoryView.alpha = (visible ? 1.0 : 0.0)
         }, completion: nil)
     }
@@ -280,11 +281,12 @@ public class AKMediaViewerController: UIViewController, UIScrollViewDelegate {
 
     func buildVideoFrame() -> CGRect {
 
-        guard let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(.zero) else {
+        guard let playerCurrentItem = self.player?.currentItem, playerCurrentItem.presentationSize.equalTo(.zero),
+            let playerView = self.playerView else {
             return .zero
         }
 
-        let frame = AVMakeRect(aspectRatio: playerCurrentItem.presentationSize, insideRect: self.playerView!.bounds)
+        let frame = AVMakeRect(aspectRatio: playerCurrentItem.presentationSize, insideRect: playerView.bounds)
         return frame.integral
     }
 
